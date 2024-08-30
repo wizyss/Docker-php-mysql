@@ -1,0 +1,36 @@
+version: "3.7"
+
+services:
+    database:
+        image: mysql:5.7
+        environment:
+            MYSQL_ROOT_PASSWORD: super_strong_password
+            MYSQL_DATABASE: php_db
+            MYSQL_USER: php_db_user
+            MYSQL_PASSWORD: super_strong_password
+        networks:
+            - php-testnet
+        volumes: 
+            - /home/compose/test-php/entrypointscripts:/docker-entrypoint-initdb.d
+    adminer:
+        image: adminer:latest
+        environment:
+            ADMINER_DEFAULT_SERVER: database
+        restart: always
+        ports:
+        - 8080:8080
+        networks:
+            - php-testnet    
+    myapp:
+        build: .
+        restart: always
+        depends_on:
+            - database
+        ports:
+            - "80:80"
+        networks:
+            - php-testnet
+
+networks:
+    php-testnet:
+        driver: bridge
